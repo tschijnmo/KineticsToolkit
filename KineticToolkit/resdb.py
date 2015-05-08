@@ -25,7 +25,7 @@ except ImportError:
     from yaml import Loader, Dumper
 
 
-class DataDB(object):
+class ResDB(object):
 
     """
     The database for computation results
