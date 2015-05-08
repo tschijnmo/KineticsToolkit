@@ -135,7 +135,7 @@ class ResDB(object):
     # Querying the database
     #
 
-    def filter_data(self, keep_idx=False, **crit):
+    def filter_data(self, keep_idx=False, subset=None, **crit):
         """Filters the content and get the data points satisfying the criteria
 
         :param crit: The filtering criteria, given as keyword arguments. The
@@ -149,13 +149,19 @@ class ResDB(object):
         :param keep_idx: If the indices in the list of data is needed. If it is
             set to True, data points are going to be returned as pairs of
             index and the data point.
+        :param subset: Frequently we would like to boost the performance by
+            avoid filtering that has already been performed. If this
+            parameter is set to a list, the filtering will be based on the
+            given list rather than the internal content of the data base.
         :returns: A list of the data points that satisfies the criterion.
         :rtype: list
         """
 
         return [
             ((idx, data) if keep_idx else data)
-            for idx, data in enumerate(self.content)
+            for idx, data in enumerate(
+                self.content if subset is None else subset
+            )
             if all(
                 k in data and (
                     v(data[k]) if isinstance(v, abc.Callable) else data[k] == v
