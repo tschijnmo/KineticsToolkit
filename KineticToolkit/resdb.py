@@ -191,6 +191,49 @@ class ResDB(object):
         else:
             return all_data[0]
 
+    def get_prop(self, prop, tol=0, **kwargs):
+        """Gets a given property
+
+        This method will help to get the value of a given property on data
+        points satisfying the given requirements.
+
+        :param prop: The name of the property to be fetched.
+        :param tol: The tolerance for the disagreement among all results of
+            the property that is found. An integral value of zero could be
+            given to raise exception if more than one value of the property
+            is found.
+        :param kwargs: All the keyword arguments are going to be passed down to
+            the core :py:meth:`filter_data` method. Most of times the
+            requirement for the data points can be given.
+        :returns: The value of the given property.
+        """
+
+        # The presence of the given property needs to be added to the
+        # requirements.
+        kwargs[prop] = lambda _: True
+
+        # Filter the data points.
+        data_pnts = self.filter_data(**kwargs)
+
+        # Get the values of the property.
+        prop_vals = [i[prop] for i in data_pnts]
+
+        if len(prop_vals) == 1:
+            return prop_vals[0]
+        else:
+            if tol == 0:
+                raise ValueError(
+                    'More than one value has been found for {}'.format(prop)
+                )
+            else:
+                range_ = max(prop_vals) - min(prop_vals)
+                if range_ > tol:
+                    raise ValueError(
+                        'The range of {} exceeds tolerance'.format(prop)
+                    )
+                else:
+                    return sum(range_) / len(range_)
+
     #
     # Small utilities for adding and removing data
     #
